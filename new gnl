@@ -53,48 +53,48 @@ char	*ft_get_line(char *rest_of_read)
 
 char	* ft_read_file(int fd, char *rest_of_read)
 {
-	char	*buff;
-	int		bytes;
+	char	*buffer;
+	int		bytes_read;
 
-	buff = malloc(BUFFER_SIZE + 1);
-	if (!buff)
+	buffer = malloc(bufferER_SIZE + 1);
+	if (!buffer)
 		return (NULL);
-	bytes = 1;
-	while ((!rest_of_read || !ft_strchr(rest_of_read, '\n')) && bytes > 0)
+	bytes_read = 1;
+	while ((!rest_of_read || !ft_strchr(rest_of_read, '\n')) && bytes_read > 0)
 	{
-		bytes = read(fd, buff, BUFFER_SIZE);
-		if (bytes < 0)
+		bytes_read = read(fd, buffer, bufferER_SIZE);
+		if (bytes_read < 0)
 		{
-			free(buff);
+			free(buffer);
 			free(rest_of_read);
 			return (NULL);
 		}
-		buff[bytes] = '\0';
-		rest_of_read = ft_strjoin(rest_of_read, buff);
+		buffer[bytes_read] = '\0';
+		rest_of_read = ft_strjoin(rest_of_read, buffer);
 	}
-	free(buff);
+	free(buffer);
 	return (rest_of_read);
 }
 
-char	*get_next_line(int fd)
+char    *get_next_line(int fd)
 {
-	static char	*rest_of_read;
-	char		*line;
+    static char *rest_of_read[MAX_FDS];
+    char        *line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-
-	rest_of_read = ft_read_file(fd, rest_of_read);
-	if (rest_of_read && *rest_of_read)
-	{
-		line = ft_get_line(rest_of_read);
-		rest_of_read = ft_rest_of_read(rest_of_read);
-		return (line);
-	}
-	free(rest_of_read);
-	rest_of_read = NULL;
-	return (NULL);
+    if (fd < 0 || bufferER_SIZE <= 0 || fd >= MAX_FDS)
+        return (NULL);
+    rest_of_read[fd] = ft_read_file(fd, rest_of_read[fd]);
+    if (rest_of_read[fd] && *rest_of_read[fd])
+    {
+        line = ft_get_line(rest_of_read[fd]);
+        rest_of_read[fd] = ft_rest_of_read(rest_of_read[fd]);
+        return (line);
+    }
+    free(rest_of_read[fd]);
+    rest_of_read[fd] = NULL;
+    return (NULL);
 }
+
 
 // int main(void){
 // 	char *line;
@@ -106,4 +106,27 @@ char	*get_next_line(int fd)
 // 		free(line);
 // 	}
 //  close(fd);
+// }
+// 
+// int main(void){
+// 	int fdone =open("t.txt",O_RDONLY);
+// 	int fdtwo = open("tt.txt",	O_RDONLY);
+// 	if (fdone < 0 || fdtwo < 0)
+// 	{
+// 		printf("error");
+// 		return 0;
+// 	}
+// 	char *line;
+// 	while(line = get_next_line(fdone))
+// 	{
+// 		printf("%s",line);
+// 		free(line);
+// 	}
+// 	close (fdone);
+// 	while(line = get_next_line(fdtwo))
+// 	{
+// 		printf("%s",line);
+// 		free(line);
+// 	}
+// 	close(fdtwo);
 // }
