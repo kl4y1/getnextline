@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mnajem <mnajem@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/02 17:17:05 by mnajem            #+#    #+#             */
-/*   Updated: 2025/09/02 21:20:44 by mnajem           ###   ########.fr       */
+/*   Created: 2025/08/27 20:30:28 by mnajem            #+#    #+#             */
+/*   Updated: 2025/10/04 17:01:22 by mnajem           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,10 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 		len = slen;
 	sub = malloc(len + 1);
 	if (sub == NULL)
+	{
+		free(sub);
 		return (NULL);
+	}
 	ft_strlcpy(sub, s + start, len + 1);
 	sub[len] = '\0';
 	return (sub);

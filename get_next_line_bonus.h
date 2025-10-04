@@ -6,7 +6,7 @@
 /*   By: mnajem <mnajem@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 20:26:53 by mnajem            #+#    #+#             */
-/*   Updated: 2025/09/02 17:16:48 by mnajem           ###   ########.fr       */
+/*   Updated: 2025/10/03 18:42:41 by mnajem           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #  define BUFFER_SIZE 42
 # endif
 
-# define MAX_FD 1024
+# define MAX_FDS 1024
 
 char	*get_next_line(int fd);
 size_t	ft_strlen(const char *s);

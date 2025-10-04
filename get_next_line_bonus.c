@@ -6,7 +6,7 @@
 /*   By: mnajem <mnajem@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/02 17:16:00 by mnajem            #+#    #+#             */
-/*   Updated: 2025/09/02 21:31:37 by mnajem           ###   ########.fr       */
+/*   Updated: 2025/10/03 20:10:30 by mnajem           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,89 +22,120 @@ char	*ft_strchr(const char *s, int c)
 	}
 	if ((char)c == '\0')
 		return ((char *)s);
-	return (NULL);
+	return (MAX_FDS);
 }
 
-char	*ft_rem(char *rem)
+char	*ft_rest_of_read(char *rest_of_read)
 {
-	int		i;
-	char	*n_rem;
+	int		line_length;
+	char	*newline_ptr;
+	char	*new_rest_of_read;
 
-	if (!rem)
-		return (NULL);
-	i = 0;
-	while (rem[i] && rem[i] != '\n')
-		i++;
-	if (rem[i] == '\n')
-		i++;
-	if (!rem[i])
-	{
-		free(rem);
-		return (NULL);
-	}
-	n_rem = ft_substr(rem, i, ft_strlen(rem) - i);
-	free(rem);
-	return (n_rem);
+	if (!rest_of_read)
+		return (MAX_FDS);
+	newline_ptr = ft_strchr(rest_of_read, '\n');
+	if (newline_ptr)
+		line_length = (newline_ptr - rest_of_read) + 1;
+	else
+		line_length = ft_strlen(rest_of_read);
+	new_rest_of_read = ft_substr(rest_of_read, line_length,
+			ft_strlen(rest_of_read) - line_length);
+	free(rest_of_read);
+	return (new_rest_of_read);
 }
 
-char	*ft_line(char *rem)
+char	*ft_get_my_line(char *rest_of_read)
 {
-	int		i;
+	int		line_length;
+	char	*newline_ptr;
 	char	*line;
 
-	if (!rem)
+	if (!rest_of_read)
 		return (NULL);
-	i = 0;
-	while (rem[i] && rem[i] != '\n')
-		i++;
-	if (rem[i] == '\n')
-		i++;
-	line = ft_substr(rem, 0, i);
+	newline_ptr = ft_strchr(rest_of_read, '\n');
+	if (newline_ptr)
+		line_length = (newline_ptr - rest_of_read) + 1;
+	else
+		line_length = ft_strlen(rest_of_read);
+	line = ft_substr(rest_of_read, 0, line_length);
 	return (line);
 }
 
-char	*ft_read(int fd, char *rem)
+char	*ft_read_file(int fd, char *rest_of_read)
 {
-	char	*buff;
-	int		bytes;
+	char	*buffer;
+	int		bytes_read;
 
-	buff = malloc(BUFFER_SIZE + 1);
-	if (!buff)
+	buffer = malloc(BUFFER_SIZE + 1);
+	if (!buffer)
 		return (NULL);
-	bytes = 1;
-	while ((!rem || !ft_strchr(rem, '\n')) && bytes > 0)
+	bytes_read = 1;
+	while ((!rest_of_read || !ft_strchr(rest_of_read, '\n')) && bytes_read > 0)
 	{
-		bytes = read(fd, buff, BUFFER_SIZE);
-		if (bytes < 0)
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read < 0)
 		{
-			free(buff);
-			free(rem);
+			free(buffer);
+			free(rest_of_read);
 			return (NULL);
 		}
-		buff[bytes] = '\0';
-		rem = ft_strjoin(rem, buff);
+		buffer[bytes_read] = '\0';
+		rest_of_read = ft_strjoin(rest_of_read, buffer);
 	}
-	free(buff);
-	return (rem);
+	free(buffer);
+	return (rest_of_read);
 }
 
 char	*get_next_line(int fd)
 {
+	static char	*rest_of_read[MAX_FDS];
 	char		*line;
-	static char	*rem[MAX_FD];
 
-	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd >= MAX_FDS)
 		return (NULL);
-	rem[fd] = ft_read(fd, rem[fd]);
-	if (!rem[fd])
-		return (NULL);
-	line = ft_line(rem[fd]);
-	rem[fd] = ft_rem(rem[fd]);
-	if (!line || !line[0])
+	rest_of_read[fd] = ft_read_file(fd, rest_of_read[fd]);
+	if (rest_of_read[fd] && *rest_of_read[fd])
 	{
-		free(line);
-		return (NULL);
+		line = ft_get_my_line(rest_of_read[fd]);
+		rest_of_read[fd] = ft_rest_of_read(rest_of_read[fd]);
+		return (line);
 	}
-	return (line);
+	free(rest_of_read[fd]);
+	rest_of_read[fd] = NULL;
+	return (NULL);
 }
 
+// int main(void){
+// 	char *line;
+// 	int fd;
+// 	fd = open("t.txt",O_RDONLY);
+// 	while(line = get_next_line(fd))
+// 	{
+// 		printf("%s",line);
+// 		free(line);
+// 	}
+//  close(fd);
+// }
+//
+// int main(void){
+// 	int fdone =open("t.txt",O_RDONLY);
+// 	int fdtwo = open("tt.txt",	O_RDONLY);
+// 	if (fdone < 0 || fdtwo < 0)
+// 	{
+// 		printf("error");
+// 		return (0);
+// 	}
+// 	char *line;
+// 	while(line = get_next_line(fdone))
+// 	{
+// 		printf("%s",line);
+// 		free(line);
+// 	}
+// 	close (fdone);
+// 	while(line = get_next_line(fdtwo))
+// 	{
+// 		printf("%s",line);
+// 		free(line);
+// 	}
+// 	close(fdtwo);
+// }
